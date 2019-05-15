@@ -4,8 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-const db = require('./database/db');
-
+// Removed const db = require... as it is no longer needed.
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
@@ -20,8 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(db);
-
+// Removed app.use(db) inn favor of persitent db connection
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
