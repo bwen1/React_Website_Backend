@@ -8,12 +8,12 @@ var app = require('./app');
 var debug = require('debug')('api:server');
 var http = require('http');
 // Required the database here for database details
-var database = require('./database/db')
+var database = require('./database/db');
 /**
  * Get port from environment and store in Express.
  */
 
- // Used parseInt over normalizePort
+// Used parseInt over normalizePort
 var port = parseInt(process.env.PORT || '3001');
 app.set('port', port);
 
@@ -27,9 +27,9 @@ var server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
- // Wrapped the server listener and other functions in database connection
-database.connect( ( err ) => {
-    console.log(err)
+// Wrapped the server listener and other functions in database connection
+database.connect((err) => {
+    err ? console.log(err) : false;
     app.locals.db = database;
     server.listen(port);
     server.on('error', onError);
@@ -87,8 +87,9 @@ database.connect( ( err ) => {
 
     function onListening() {
         var addr = server.address();
-        var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
+        var bind =
+            typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
         debug('Listening on ' + bind);
         console.log('Server running on port:', port);
     }
-})
+});
