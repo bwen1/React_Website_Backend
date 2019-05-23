@@ -4,22 +4,90 @@ const mysql = require('mysql');
 const router = express.Router();
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', (req, res, next) => {
     res.render('index', {
         title: "The World's Best Database API",
         name: 'Libb'
     });
 });
 
-router.get('/api', function(req, res, next) {
+router.get('/api', (req, res, next) => {
     res.render('index', { title: 'Lots of routes available' });
 });
 
-router.get('/api/random', (req, res) => {
-    res.send({ randomNumber: Math.round(Math.random() * 1000) });
+router.get('/api/genders', (req, res) => {
+    let query = `SELECT * FROM offences`;
+
+    req.app.locals.db.query(query, (err, result) => {
+        if (err) {
+            console.log(err, result);
+            res.redirect('/');
+        }
+        let gender = result.map((val, i) => {
+            return val.gender;
+        });
+    });
+    console.log(gender);
+    res.status(200)
+        .send(gender)
+        .end();
 });
 
-router.get('/api/city', function(req, res) {
+router.get('/api/area', (req, res) => {
+    let query = `SELECT * FROM offences`;
+
+    req.app.locals.db.query(query, (err, result) => {
+        if (err) {
+            console.log(err, result);
+            res.redirect('/');
+        }
+        let area = result.map((val, i) => {
+            return val.area;
+        });
+    });
+    console.log(area);
+    res.status(200)
+        .send(area)
+        .end();
+});
+
+router.get('/api/ages', (req, res) => {
+    let query = `SELECT * FROM offences`;
+
+    req.app.locals.db.query(query, (err, result) => {
+        if (err) {
+            console.log(err, result);
+            res.redirect('/');
+        }
+        let age = result.map((val, i) => {
+            return val.age;
+        });
+    });
+    console.log(age);
+    res.status(200)
+        .send(age)
+        .end();
+});
+
+router.get('/api/years', (req, res) => {
+    let query = `SELECT * FROM offences`;
+
+    req.app.locals.db.query(query, (err, result) => {
+        if (err) {
+            console.log(err, result);
+            res.redirect('/');
+        }
+        let years = result.map((val, i) => {
+            return val.years;
+        });
+    });
+    console.log(years);
+    res.status(200)
+        .send(years)
+        .end();
+});
+
+router.get('/api/offences', (req, res) => {
     // const { term } = req.query; // Better syntax
     //const term = req.query.term;
     //res.send(['brisbane', 'sydney']);
