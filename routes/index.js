@@ -89,20 +89,14 @@ router.get('/api/years', (req, res) => {
 });
 
 router.get('/api/offences', (req, res) => {
-    // const { term } = req.query; // Better syntax
-    //const term = req.query.term;
-    //res.send(['brisbane', 'sydney']);
-    //const query = `SELECT * FROM world.city WHERE name = "${term}"`;
     let query = `SELECT * FROM offence_columns`;
-    //var table = ['city'];
-
     req.app.locals.db.query(query, (err, result) => {
         if (err) {
             console.log(err, result);
             res.redirect('/');
         }
         let pretty = result.map((val, i) => {
-            return val.pretty; // Will save all the pretty text into the variable 'pretty' as an array
+            return val.pretty;
         });
 
         console.log(pretty);
@@ -113,12 +107,23 @@ router.get('/api/offences', (req, res) => {
 });
 
 router.get('/api/search', (req, res) => {
-    let term = req.query.term;
-    //term = 'arson';
-    let query = `SELECT area, ${term} FROM offences`;
-    console.log(query);
+    let offence = req.query.offence;
+    //offence = 'arson';
+    let queryString = `SELECT area, ${offence} FROM offences`;
+    const queryNames = ['age', 'gender', 'year', 'area'];
+    let counter = 0;
+    for (let child in req.query) {
+        if (queryNames.includes(child)) {
+            if (counter === 0) {
+                queryString += ` WHERE `;
+            } else {
+                queryString += ` AND `;
+            }
 
-    //let query = `SELECT * FROM world.city WHERE name = "${term}"`;
+            queryString += `${child} =  "${req.query[child]}"`;
+            counter++;
+        }
+    }
 
     req.app.locals.db.query(query, (err, result) => {
         if (err) {
@@ -126,9 +131,9 @@ router.get('/api/search', (req, res) => {
             res.redirect('/');
         }
         console.log(result);
-        // TODO: Implement filters
+
         let search = result.reduce((acc, cur) => {
-            acc[cur.area] = acc[cur.area] || 0 + cur[term];
+            acc[cur.area] = (acc[cur.area] || 0) + cur[term];
             return acc;
         }, {});
 
@@ -140,25 +145,34 @@ router.get('/api/search', (req, res) => {
 });
 
 router.get('/api/searchtest', (req, res) => {
-    // const { term } = req.query; // Better syntax
-    //const term = req.query.term;
-    //res.send(['brisbane', 'sydney']);
-    //const query = `SELECT * FROM world.city WHERE name = "${term}"`;
-    let query = `SELECT area,arson FROM offences`;
-    //var table = ['city'];
+    let queryString = `SELECT area,arson FROM offences`;
+    const queryNames = ['age', 'gender', 'year', 'area'];
+    let counter = 0;
+    for (let child in req.query) {
+        if (queryNames.includes(child)) {
+            if (counter === 0) {
+                queryString += ` WHERE `;
+            } else {
+                queryString += ` AND `;
+            }
 
-    req.app.locals.db.query(query, (err, result) => {
+            queryString += `${child} =  "${req.query[child]}"`;
+            counter++;
+        }
+    }
+
+    //console.log(queryString);
+    req.app.locals.db.query(queryString, (err, result) => {
         if (err) {
             console.log(err, result);
             res.redirect('/');
         }
-        //console.log(result);
         let search = result.reduce((acc, cur) => {
-            acc[cur.area] = acc[cur.area] || 0 + cur.arson;
+            acc[cur.area] = (acc[cur.area] || 0) + cur.arson;
             return acc;
         }, {});
 
-        console.log(search);
+        //console.log(search);
         res.status(200)
             .send(search)
             .end();
