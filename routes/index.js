@@ -145,6 +145,8 @@ router.get('/api/search', (req, res) => {
 });
 
 router.get('/api/searchtest', (req, res) => {
+    // TODO IMPLEMENET TOKEN AUTHORIZATION
+
     let queryString = `SELECT area,arson FROM offences`;
     const queryNames = ['age', 'gender', 'year', 'area'];
     let counter = 0;
@@ -177,59 +179,6 @@ router.get('/api/searchtest', (req, res) => {
             .send(search)
             .end();
     });
-});
-
-router.post('/api/register', (req, res) => {
-    //TODO: Use password hash
-    let today = new Date();
-
-    let users = {
-        id: today,
-        email: req.body.email,
-        password: req.body.password,
-        created_at: today,
-        updated_at: today
-    };
-
-    connection.query(
-        'INSERT INTO users SET ?',
-        users,
-        (error, results, fields) => {
-            if (error) {
-                console.log('Error', error);
-                res.send({ code: 400, failed: 'error occured' });
-            } else {
-                console.log('results', results);
-                res.send({
-                    code: 200,
-                    success: 'user registered successfully'
-                });
-            }
-        }
-    );
-});
-
-router.post('/api/login', (req, res) => {
-    let email = req.body.email;
-    let password = req.body.password;
-    connection.query(
-        'SELECT * FROM users WHERE eamail = ?',
-        [email],
-        (error, results, fields) => {
-            if (error) {
-                res.send({ code: 400, failed: 'error occured' });
-            } else {
-                if (results.length > 0) {
-                    if (results[0].password == password) {
-                        res.send({
-                            code: 200,
-                            success: 'login successfull'
-                        });
-                    }
-                }
-            }
-        }
-    );
 });
 
 module.exports = router;
