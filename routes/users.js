@@ -3,15 +3,10 @@ const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
-const my_key = 'mysecretkey';
-
-/* GET users listing. */
-router.get('/test', (req, res, next) => {
-    res.send('respond with a resource');
-});
+const app = require('../app');
+const mysecretkey = 'mysecretkey';
 
 router.post('/register', (req, res) => {
-    //TODO: Use password hash
     let today = new Date();
 
     let users = {
@@ -27,11 +22,11 @@ router.post('/register', (req, res) => {
         (error, results, fields) => {
             if (error) {
                 console.log('Error', error);
-                res.send({ code: 400, error });
+                res.send({ code: 400, message: 'Error occured' });
             } else {
                 console.log('results', results);
                 const expiresIn = 24 * 60 * 60;
-                const accessToken = jwt.sign({ id: users.id }, my_key, {
+                const accessToken = jwt.sign({ id: users.id }, mysecretkey, {
                     expiresIn: expiresIn
                 });
                 res.send({
@@ -51,14 +46,14 @@ router.post('/login', (req, res) => {
         [email],
         (error, results, fields) => {
             if (error) {
-                res.send({ code: 400, failed: 'error occured' });
+                res.send({ code: 400, failed: 'Error occured' });
             } else {
                 if (results.length > 0) {
                     if (bcrypt.compareSync(password, results[0].password)) {
                         const expiresIn = 24 * 60 * 60;
                         const accessToken = jwt.sign(
                             { id: results[0].id },
-                            my_key,
+                            mysecretkey,
                             {
                                 expiresIn: expiresIn
                             }
@@ -75,7 +70,5 @@ router.post('/login', (req, res) => {
         }
     );
 });
-
-router.post('/login');
 
 module.exports = router;

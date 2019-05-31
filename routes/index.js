@@ -3,18 +3,6 @@ const mysql = require('mysql');
 
 const router = express.Router();
 
-/* GET home page. */
-router.get('/', (req, res, next) => {
-    res.render('index', {
-        title: "The World's Best Database API",
-        name: 'Libb'
-    });
-});
-
-router.get('/api', (req, res, next) => {
-    res.render('index', { title: 'Lots of routes available' });
-});
-
 router.get('/api/genders', (req, res) => {
     let query = `SELECT * FROM offences`;
 
@@ -107,47 +95,70 @@ router.get('/api/offences', (req, res) => {
 });
 
 router.get('/api/search', (req, res) => {
-    let offence = req.query.offence;
-    //offence = 'arson';
-    let queryString = `SELECT area, ${offence} FROM offences`;
-    const queryNames = ['age', 'gender', 'year', 'area'];
-    let counter = 0;
-    for (let child in req.query) {
-        if (queryNames.includes(child)) {
-            if (counter === 0) {
-                queryString += ` WHERE `;
+    var token =
+        req.body.token || req.query.token || req.headers['x-access-token'];
+
+    // decode token
+    if (token) {
+        // verifies secret and checks exp
+        jwt.verify(token, app.get('superSecret'), function(err, decoded) {
+            if (err) {
+                return res.json({
+                    success: false,
+                    message: 'Failed to authenticate token.'
+                });
             } else {
-                queryString += ` AND `;
+                req.decoded = decoded;
+                let offence = req.query.offence;
+                //let offence = 'arson';
+                let queryString = `SELECT area, ${offence} FROM offences`;
+                const queryNames = ['age', 'gender', 'year', 'area'];
+                let counter = 0;
+                for (let child in req.query) {
+                    if (queryNames.includes(child)) {
+                        if (counter === 0) {
+                            queryString += ` WHERE `;
+                        } else {
+                            queryString += ` AND `;
+                        }
+
+                        queryString += `${child} =  "${req.query[child]}"`;
+                        counter++;
+                    }
+                }
+
+                req.app.locals.db.query(queryString, (err, result) => {
+                    if (err) {
+                        console.log(err, result);
+                        res.redirect('/');
+                    }
+                    console.log(result);
+
+                    let search = result.reduce((acc, cur) => {
+                        acc[cur.area] = (acc[cur.area] || 0) + cur[offence];
+                        return acc;
+                    }, {});
+
+                    console.log(search);
+                    res.status(200)
+                        .send(search)
+                        .end();
+                });
             }
-
-            queryString += `${child} =  "${req.query[child]}"`;
-            counter++;
-        }
+        });
+    } else {
+        // if there is no token
+        // return an error
+        return res.status(403).send({
+            success: false,
+            message: 'No token provided.'
+        });
     }
-
-    req.app.locals.db.query(query, (err, result) => {
-        if (err) {
-            console.log(err, result);
-            res.redirect('/');
-        }
-        console.log(result);
-
-        let search = result.reduce((acc, cur) => {
-            acc[cur.area] = (acc[cur.area] || 0) + cur[term];
-            return acc;
-        }, {});
-
-        console.log(search);
-        res.status(200)
-            .send(search)
-            .end();
-    });
 });
 
 router.get('/api/searchtest', (req, res) => {
-    // TODO IMPLEMENET TOKEN AUTHORIZATION
-
-    let queryString = `SELECT area,arson FROM offences`;
+    let queryString = `SELECT offences.arson, offences.area, areas.lat, areas.lng from offences 
+    INNER JOIN areas ON areas.area=offences.area`;
     const queryNames = ['age', 'gender', 'year', 'area'];
     let counter = 0;
     for (let child in req.query) {
@@ -171,6 +182,7 @@ router.get('/api/searchtest', (req, res) => {
         }
         let search = result.reduce((acc, cur) => {
             acc[cur.area] = (acc[cur.area] || 0) + cur.arson;
+
             return acc;
         }, {});
 

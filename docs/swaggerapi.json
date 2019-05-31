@@ -1,104 +1,390 @@
-{ "openapi":"3.0.0",
-    "info":{ 
-        "title":"Swagger Petstore",
-        "description":"This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters.",
-        "version":"1.0.0",
-        "termsOfService":"http://swagger.io/terms/",
-        "contact":{"email":"apiteam@swagger.io"},
-        "license":{
-            "name":"Apache 2.0",
-            "url":"http://www.apache.org/licenses/LICENSE-2.0.html"
-        } 
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Swagger API",
+        "description": "This is a simple Express API that is based off of the QLD Offences Database. This API includes a search function with filters as well as a login and registration."
     },
-    "servers":[ 
+    "servers": [
         {
             "url": "http://localhost:3000"
         }
     ],
-    "basePath":"/v2",
-    "tags":[
-        { 
-          "name":"pet",
-          "description":"Everything about your Pets",
-          "externalDocs":{
-                            "description":"Find out more",
-                            "url":"http://swagger.io"
-                         }
-        },
-        { 
-          "name":"store",
-          "description":"Access to Petstore orders"
-        },
-        { 
-          "name":"user",
-          "description":"Operations about user",
-          "externalDocs":{ 
-                            "description":"Find out more about our store",
-                            "url":"http://swagger.io"
-                         } 
-        }
-    ],
-    "paths":{ 
-        "/pet":{ 
-            "post":{ 
-                "tags":["pet"],
-                "summary":"Add a new pet to the store",
-                "description":"",
-                "operationId":"addPet",
-                "consumes":["application/json","application/xml"],
-                "produces":["application/xml","application/json"],
-                "parameters":[
-                    {
-                        "in":"body",
-                        "name":"body",
-                        "description":"Pet object that needs to be added to the store",
-                        "required":true,
-                        "schema":{"$ref":"#/definitions/Pet"}
-                     }],
-                "responses":{
-                    "405":{
-                           "description":"Invalid input"
-                          }
-                }
-            }
-        },
-        "/pet/findByStatus":{ 
-            "get":{
-                "tags":["pet"],
-                "summary":"Finds Pets by status",
-                "description":"Multiple status values can be provided with comma separated strings",
-                "operationId":"findPetsByStatus",
-                "produces":["application/xml","application/json"],
-                "parameters":[
-                    {
-                        "name":"status",
-                        "in":"query",
-                        "description":"Status values that need to be considered for filter",
-                        "required":true,
-                        "type":"array",
-                        "items":{
-                            "type":"string",
-                            "enum":["available","pending","sold"],
-                            "default":"available"
-                        },
-                        "collectionFormat":"multi"
-                }],
-                "responses":{
-                    "200":{
-                        "description":"successful operation",
-                        "schema":{
-                            "type":"array",
-                            "items":{
-                                "$ref":"#/definitions/Pet"
+
+    "paths": {
+        "/register": {
+            "post": {
+                "tags": ["Authentication"],
+                "summary": "Registers a new user account",
+                "description": "This is your starting point.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "required": true,
+                                        "example": "demo-user@gmail.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "required": true,
+                                        "example": "demouserpassword"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User registered successfully"
+                                        }
+                                    }
+                                }
                             }
                         }
                     },
-                    "400":{
-                        "description":"Invalid status value"
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error occured"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
+            }
+        },
+        "/login": {
+            "post": {
+                "summary": "Login with an existing user account",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "required": true,
+                                        "example": "demo-user@gmail.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "required": true,
+                                        "example": "demouserpassword"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "login successful"
+                                        },
+                                        "access_token": {
+                                            "type": "string",
+                                            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjo1Nzg2LCJlbWFpbCI6ImRlbW8xMjM0QGdtYWlsLmNvbSJ9LCJpYXQiOjE1NTUzMjQ2MDIsImV4cCI6MTU1NTQxMTAwMn0.mo85iKuAQ_h8n8-6pkeNNs5CCnV0G8hScxhi_ml_Q6c"
+                                        },
+                                        "expires_in": {
+                                            "type": "integer",
+                                            "example": 86400
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error occured"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": ["Authentication"]
+            }
+        },
+        "/search": {
+            "get": {
+                "description": "Search for Offence data",
+                "parameters": [
+                    {
+                        "name": "offence",
+                        "in": "query",
+                        "description": "Name of the Offence to search for",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "area",
+                        "in": "query",
+                        "description": "List of comma-separated Areas (LGAs) to filter search results by",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "age",
+                        "in": "query",
+                        "description": "List of comma-separated Ages to filter search results by",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "gender",
+                        "in": "query",
+                        "description": "List of comma-separated Genders to filter search results by",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "year",
+                        "in": "query",
+                        "description": "List of comma-separated Years to filter search results by",
+                        "required": false,
+                        "schema": {
+                            "type": "intager"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "query": {
+                                            "type": "object",
+                                            "properties": {
+                                                "offence": {
+                                                    "type": "string",
+                                                    "example": "Arson"
+                                                }
+                                            }
+                                        },
+                                        "result": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "LGA": {
+                                                        "type": "string",
+                                                        "example": "Aurukun Shire Council"
+                                                    },
+                                                    "total": {
+                                                        "type": "intager",
+                                                        "example": 4
+                                                    },
+                                                    "lat": {
+                                                        "type": "decimal(10,8)",
+                                                        "example": -27.470812
+                                                    },
+                                                    "lng": {
+                                                        "type": "decimal(11,8)",
+                                                        "example": 153.022455
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No token provided."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": ["Search & Filter"]
+            }
+        },
+        "/offences": {
+            "get": {
+                "description": "List of offences to perform searches for",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "offences": {
+                                            "type": "array",
+                                            "example": [
+                                                "Advertising Prostitution",
+                                                "Armed Robbery"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": ["Others"]
+            }
+        },
+        "/areas": {
+            "get": {
+                "description": "List of Areas to filter search results by",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "areas": {
+                                            "type": "array",
+                                            "example": [
+                                                "Aurukun Shire Council",
+                                                "Balonne Shire Council"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": ["Others"]
+            }
+        },
+        "/ages": {
+            "get": {
+                "description": "List of Ages to filter search results by",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "ages": {
+                                            "type": "array",
+                                            "example": ["Adult", "Juvenile"]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": ["Others"]
+            }
+        },
+        "/genders": {
+            "get": {
+                "description": "List of Genders to filter search results by",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "genders": {
+                                            "type": "array",
+                                            "example": ["Female", "Male"]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": ["Others"]
+            }
+        },
+        "/years": {
+            "get": {
+                "description": "List of Years to filter search results by",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "years": {
+                                            "type": "array",
+                                            "example": [2001, 2002]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": ["Others"]
             }
         }
     }
 }
-                

@@ -3,8 +3,9 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-//const swaggerUI = require('swagger-ui-express');
-//const swaggerDocument = require('./docs/swaggerapi.json');
+
+const swaggerUI = require('swagger-ui-express');
+const swaggerDocument = require('./docs/swaggerapi.json');
 
 // Removed const db = require... as it is no longer needed.
 const indexRouter = require('./routes/index');
@@ -21,7 +22,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-//app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+
+logger.token('req', (req, res) => JSON.stringify(req.headers));
+logger.token('res', (req, res) => {
+    const headers = {};
+    res.getHeaderNames().map((h) => (headers[h] = res.getHeader(h)));
+    return JSON.stringify(headers);
+});
+
+app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 // Removed app.use(db) inn favor of persitent db connection
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
