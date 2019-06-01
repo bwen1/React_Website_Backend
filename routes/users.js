@@ -5,10 +5,10 @@ const bcrypt = require('bcryptjs');
 const router = express.Router();
 const app = require('../app');
 const mysecretkey = 'mysecretkey';
-
+// Register route
 router.post('/register', (req, res) => {
     let today = new Date();
-
+    // Create new user with following params
     let users = {
         email: req.body.email,
         password: bcrypt.hashSync(req.body.password),
@@ -37,7 +37,7 @@ router.post('/register', (req, res) => {
         }
     );
 });
-
+// Login route
 router.post('/login', (req, res) => {
     let email = req.body.email;
     let password = req.body.password;
@@ -49,6 +49,7 @@ router.post('/login', (req, res) => {
                 res.send({ code: 400, failed: 'Error occured' });
             } else {
                 if (results.length > 0) {
+                    // Compares password, and if passed creates a token
                     if (bcrypt.compareSync(password, results[0].password)) {
                         const expiresIn = 24 * 60 * 60;
                         const accessToken = jwt.sign(

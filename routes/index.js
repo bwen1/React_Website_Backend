@@ -3,6 +3,7 @@ const mysql = require('mysql');
 
 const router = express.Router();
 
+// Helper routes
 router.get('/api/genders', (req, res) => {
     let query = `SELECT * FROM offences`;
 
@@ -76,6 +77,7 @@ router.get('/api/years', (req, res) => {
     });
 });
 
+// Offences route
 router.get('/api/offences', (req, res) => {
     let query = `SELECT * FROM offence_columns`;
     req.app.locals.db.query(query, (err, result) => {
@@ -94,7 +96,9 @@ router.get('/api/offences', (req, res) => {
     });
 });
 
+// Search route
 router.get('/api/search', (req, res) => {
+    // Check it token exists
     var token =
         req.body.token || req.query.token || req.headers['x-access-token'];
 
@@ -138,10 +142,49 @@ router.get('/api/search', (req, res) => {
                         acc[cur.area] = (acc[cur.area] || 0) + cur[offence];
                         return acc;
                     }, {});
+                    let name = result.map((item) => {
+                        return item.area;
+                    });
 
-                    console.log(search);
+                    let latitude = result.map((item) => {
+                        return item.lat;
+                    });
+
+                    let longitude = result.map((item) => {
+                        return item.lng;
+                    });
+                    let index;
+
+                    // For loop to remove duplicates
+                    let unique_latitude = [];
+                    let unique_longitude = [];
+                    for (let i = 0; i < latitude.length; i++) {
+                        if (name[i] === index) {
+                            continue;
+                        } else {
+                            index = name[i];
+                            unique_latitude.push(latitude[i]);
+                            unique_longitude.push(longitude[i]);
+                        }
+                    }
+
+                    // Compile into an object
+                    const ress = Object.entries(search).map(
+                        ([key, value], index) => ({
+                            LGA: key,
+                            total: value,
+                            lat: unique_latitude[index],
+                            lng: unique_longitude[index]
+                        })
+                    );
+
+                    const ret_data = { result: ress };
+                    console.log(ret_data);
+                    /* for (let LGA of search) [];*/
+
+                    //console.log(ret_data);
                     res.status(200)
-                        .send(search)
+                        .send(ret_data)
                         .end();
                 });
             }
@@ -156,6 +199,7 @@ router.get('/api/search', (req, res) => {
     }
 });
 
+// Test route
 router.get('/api/searchtest', (req, res) => {
     let queryString = `SELECT offences.arson, offences.area, areas.lat, areas.lng from offences 
     INNER JOIN areas ON areas.area=offences.area`;
@@ -182,13 +226,50 @@ router.get('/api/searchtest', (req, res) => {
         }
         let search = result.reduce((acc, cur) => {
             acc[cur.area] = (acc[cur.area] || 0) + cur.arson;
-
             return acc;
         }, {});
 
-        //console.log(search);
+        let name = result.map((item) => {
+            return item.area;
+        });
+
+        let latitude = result.map((item) => {
+            return item.lat;
+        });
+
+        let longitude = result.map((item) => {
+            return item.lng;
+        });
+        let index;
+
+        // For loop to remove duplicates
+        let unique_latitude = [];
+        let unique_longitude = [];
+        for (let i = 0; i < latitude.length; i++) {
+            if (name[i] === index) {
+                continue;
+            } else {
+                index = name[i];
+                unique_latitude.push(latitude[i]);
+                unique_longitude.push(longitude[i]);
+            }
+        }
+
+        // Compile into an object
+        const ress = Object.entries(search).map(([key, value], index) => ({
+            LGA: key,
+            total: value,
+            lat: unique_latitude[index],
+            lng: unique_longitude[index]
+        }));
+
+        const ret_data = { result: ress };
+        console.log(ret_data);
+        /* for (let LGA of search) [];*/
+
+        //console.log(ret_data);
         res.status(200)
-            .send(search)
+            .send(ret_data)
             .end();
     });
 });
