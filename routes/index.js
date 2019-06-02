@@ -3,76 +3,96 @@ const mysql = require('mysql');
 
 const router = express.Router();
 
+// Function to get unique
+getUnique = (arr) => {
+    return arr.filter((e, i) => arr.indexOf(e) >= i);
+};
+
 // Helper routes
 router.get('/api/genders', (req, res) => {
-    let query = `SELECT * FROM offences`;
+    let query = `SELECT gender FROM offences`;
 
     req.app.locals.db.query(query, (err, result) => {
         if (err) {
             console.log(err, result);
             res.redirect('/');
         }
-        let gender = result.map((val, i) => {
-            return val.gender;
-        });
-        console.log(gender);
+        // Converint to array
+        let genders = getUnique(
+            result.map((val, i) => {
+                return val.gender;
+            })
+        );
+        // Converting to object
+        const ress = { genders: genders };
+
         res.status(200)
-            .send(gender)
+            .send(ress)
             .end();
     });
 });
 
-router.get('/api/area', (req, res) => {
-    let query = `SELECT * FROM offences`;
+router.get('/api/areas', (req, res) => {
+    let query = `SELECT area FROM offences`;
 
     req.app.locals.db.query(query, (err, result) => {
         if (err) {
             console.log(err, result);
             res.redirect('/');
         }
-        let area = result.map((val, i) => {
-            return val.area;
-        });
-        console.log(area);
+        let areas = getUnique(
+            result.map((val, i) => {
+                return val.area;
+            })
+        );
+
+        const ress = { areas: areas };
+
         res.status(200)
-            .send(area)
+            .send(ress)
             .end();
     });
 });
 
 router.get('/api/ages', (req, res) => {
-    let query = `SELECT * FROM offences`;
+    let query = `SELECT age FROM offences`;
 
     req.app.locals.db.query(query, (err, result) => {
         if (err) {
             console.log(err, result);
             res.redirect('/');
         }
-        let age = result.map((val, i) => {
-            return val.age;
-        });
-        console.log(age);
+        let ages = getUnique(
+            result.map((val, i) => {
+                return val.age;
+            })
+        );
+
+        const ress = { ages: ages };
         res.status(200)
-            .send(age)
+            .send(ress)
             .end();
     });
 });
 
 router.get('/api/years', (req, res) => {
-    let query = `SELECT * FROM offences`;
+    let query = `SELECT year FROM offences`;
 
     req.app.locals.db.query(query, (err, result) => {
         if (err) {
             console.log(err, result);
             res.redirect('/');
         }
-        let years = result.map((val, i) => {
-            return val.years;
-        });
+        let years = getUnique(
+            result.map((val, i) => {
+                return val.year;
+            })
+        );
 
-        console.log(years);
+        const ress = { years: years };
+
         res.status(200)
-            .send(years)
+            .send(ress)
             .end();
     });
 });

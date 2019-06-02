@@ -6,7 +6,10 @@
 
 const app = require('./app');
 const debug = require('debug')('api:server');
+const https = require('https');
 const http = require('http');
+const fs = require('fs');
+
 // Required the database here for database details
 const database = require('./database/db');
 /**
@@ -21,7 +24,14 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-const server = http.createServer(app);
+//HTTPS NOT WORKING
+/*const privateKey = fs.readFileSync('./sslcert/cert.key', 'utf8');
+const certificate = fs.readFileSync('./sslcert/cert.pem', 'utf8');
+const credentials = {
+    key: privateKey,
+    cert: certificate
+};*/
+const server = http.createServer(/*credentials.*/ app);
 
 /**
  * Listen on provided port, on all network interfaces.
